@@ -1,0 +1,38 @@
+import org.springframework.web.bind.annotation.*;
+import javax.servlet.http.HttpServletRequest;
+import java.sql.*;
+
+@RestController
+@RequestMapping("/user")
+public class UserController {
+
+    @GetMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password) {
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/app_db", "root", "password");
+            Statement stmt = conn.createStatement();
+            String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next()) {
+                return "Login successful!";
+            } else {
+                return "Invalid credentials.";
+            }
+        } catch (SQLException e) {
+            return "Database error!";
+        }
+    }
+
+    @PostMapping("/updateProfile")
+    public String updateProfile(HttpServletRequest request) {
+        String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
+
+        if (!email.contains("@")) {
+            return "Invalid email!";
+        }
+
+        return "Profile updated for email: " + email + " and phone: " + phone;
+    }
+}
